@@ -1,128 +1,125 @@
-import React, { useState } from 'react'
-import { useStore } from './components/count'
-import { DialogDemo } from './components/DialogDemo'
+import React, { useEffect, useState } from 'react'
+import { CountState } from './components/count'
+import { DialogDemo } from './components/DialogEdit'
+import { Button } from './components/ui/button'
 import { DialogAdd } from './components/DialogAdd'
 
 export default function App() {
-  const { Users, addUser, deleteUser, editUser, search } = useStore()
+  const { Users, getUsers, deleteUser, editUser, addUser } = CountState()
+  const [nameE, setNameE] = useState('')
+  const [emailE, setEmailE] = useState('')
+  const [phoneE, setPhoneE] = useState('')
+  const [openE, setOpenE] = useState(false)
+  const [editId, setEditId] = useState(null)
+  const [open, setOpen] = useState(false)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
+  const [phone, setPhone] = useState('')
 
-  const [newName, setNewName] = useState('')
-  const [newAge, setNewAge] = useState('')
-  const [openEdit, setOpenEdit] = useState(false)
-  const [idx, setIdx] = useState(null)
-  const [openAdd, setOpenAdd] = useState(false)
-  const [nameE, setName] = useState('')
-  const [age, setAge] = useState('')
+  useEffect(() => {
+    getUsers()
+  }, [])
 
   return (
-    <div className="min-h-screen bg-slate-50 py-8 px-4 sm:px-6 lg:px-8 font-sans">
-      <DialogAdd
-        open={openAdd}
-        setOpen={setOpenAdd}
-        nameE={nameE}
-        age={age}
-        setName={setName}
-        setAge={setAge}
-        addUser={addUser}
-      />
-
+    <div className="min-h-screen bg-slate-50 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+        {/* Модалҳо */}
+        <DialogDemo
+          open={openE}
+          setOpen={setOpenE}
+          name={nameE}
+          setName={setNameE}
+          email={emailE}
+          setEmail={setEmailE}
+          phone={phoneE}
+          setPhone={setPhoneE}
+          editUser={editUser}
+          editId={editId}
+        />
+        <DialogAdd
+          open={open}
+          setOpen={setOpen}
+          name={name}
+          setName={setName}
+          email={email}
+          setEmail={setEmail}
+          phone={phone}
+          setPhone={setPhone}
+          addUser={addUser}
+        />
+
+        {/* Сарлавҳа ва Тӯгма */}
+        <div className="flex flex-col sm:flex-row justify-between items-center pb-6 mb-8 border-b border-gray-200 gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800 tracking-tight">
-              User List
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+              Корбарон (Users)
             </h1>
-            <p className="text-slate-500 text-sm mt-1">
-              Manage and organize your users efficiently
+            <p className="text-sm text-slate-500 mt-1">
+              Рӯйхати ҳамаи корбарон ва идоракунии онҳо
             </p>
           </div>
-
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-            <div className="relative w-full sm:w-64">
-              <input
-                className="w-full bg-slate-100 border-0 pl-4 pr-4 py-2.5 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all text-sm"
-                type="text"
-                placeholder="Search users..."
-                onChange={(e) => search(e.target.value)}
-              />
-            </div>
-
-            <button
-              onClick={() => setOpenAdd(true)}
-              className="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl transition-all duration-200 shadow-sm hover:shadow-indigo-200 hover:shadow-md active:scale-95 text-sm"
-            >
-              + Add User
-            </button>
-          </div>
+          <Button
+            onClick={() => setOpen(true)}
+            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-5 py-2.5 rounded-lg shadow-md transition-all duration-200"
+          >
+            + Илова кардани корбар
+          </Button>
         </div>
 
-        {/* Users Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {Users.map((user) => (
+        {/* Сеткаи карточкаҳо (Grid) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {Users.map((e) => (
             <div
-              className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between group"
-              key={user.id}
+              key={e.id}
+              className="bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between p-5"
             >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">
-                    {user.name}
-                  </h2>
-                  <span
-                    className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
-                      user.status
-                        ? 'bg-emerald-50 text-emerald-600 border border-emerald-100'
-                        : 'bg-slate-100 text-slate-500'
-                    }`}
-                  >
-                    {user.status ? 'Active' : 'Inactive'}
-                  </span>
-                </div>
+              <div className="flex flex-col items-center text-center space-y-3">
+                {/* Аватар / Расм */}
+                <img
+                  src={e.img || 'https://via.placeholder.com/96'}
+                  alt={e.name}
+                  className="w-24 h-24 rounded-full object-cover border-2 border-indigo-100 shadow-inner"
+                />
 
-                <div className="text-sm text-slate-500 mb-6 space-y-1">
-                  <p>
-                    <span className="font-medium text-slate-700">Age:</span> {user.age}
+                {/* Маълумот */}
+                <div className="w-full">
+                  <h2 className="text-lg font-semibold text-slate-800 truncate">
+                    {e.name}
+                  </h2>
+                  <p className="text-sm text-slate-500 truncate mt-0.5">
+                    {e.email}
+                  </p>
+                  <p className="text-xs font-medium text-slate-400 mt-1">
+                    {e.phone}
                   </p>
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
+              {/* Тӯгмаҳои амалиёт */}
+              <div className="flex gap-2 pt-5 mt-4 border-t border-slate-100">
                 <button
-                  className="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium py-2 rounded-xl text-sm transition-colors"
+                  className="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-600 text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-150"
                   onClick={() => {
-                    setOpenEdit(true)
-                    setNewName(user.name)
-                    setNewAge(user.age)
-                    setIdx(user.id)
+                    setNameE(e.name)
+                    setEmailE(e.email)
+                    setPhoneE(e.phone)
+                    setEditId(e.id)
+                    setOpenE(true)
                   }}
                 >
-                  Edit
+                  Вироиш (Edit)
                 </button>
-
                 <button
-                  className="flex-1 bg-rose-50 hover:bg-rose-100 text-rose-600 font-medium py-2 rounded-xl text-sm transition-colors"
-                  onClick={() => deleteUser(user.id)}
+                  className="flex-1 bg-red-50 hover:bg-red-100 text-red-600 text-sm font-medium py-2 px-3 rounded-lg transition-colors duration-150"
+                  onClick={() => deleteUser(e.id)}
                 >
-                  Delete
+                  Нест кардан
                 </button>
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      <DialogDemo
-        open={openEdit}
-        setOpen={setOpenEdit}
-        setName={setNewName}
-        nameE={newName}
-        age={newAge}
-        setAge={setNewAge}
-        edit={editUser}
-        idx={idx}
-      />
     </div>
   )
 }

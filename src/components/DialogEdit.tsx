@@ -13,8 +13,8 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
-export function DialogAdd(props) {
-    let {open,setOpen,name,setName,addUser,email,setEmail,phone,setPhone}=props
+export function DialogDemo(props) {
+    let {open,setOpen,name,setName,editId,email,setEmail,phone,setPhone,editUser,status}=props
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <form>
@@ -56,7 +56,7 @@ export function DialogAdd(props) {
             <DialogClose render={<Button variant="outline">Cancel</Button>} />
             <Button type="submit" onClick={(e) => {
               e.preventDefault();
-             addUser({name:name,email:email,phone:phone})
+              editUser(editId, { name: name, email: email, phone: phone });
               setOpen(false);
             }}>
               Save changes
