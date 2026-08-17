@@ -10,59 +10,62 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { addUser } from "@/store/UsersSlice"
+import { postUser } from "@/store/UsersSlice"
 import { useDispatch } from "react-redux"
 
 export function AddModal({ open, setOpen }) {
   const dispatch = useDispatch()
 
-  function addUse(e) {
+  function handleSubmit(e) {
     e.preventDefault()
-    const id = Date.now()
-    dispatch(
-      addUser({
-        id: id,
-        name: e.target.name.value,
-        age: e.target.age.value,
-        status:e.target.statu.value
-      })
-    )
+    const formData = new FormData()
+    formData.append("name", e.target.name.value)
+    formData.append("description", e.target.description.value)
+    formData.append("isCompleted", e.target.statu.value === "true")
+    if (e.target.image.files[0]) {
+      formData.append("images", e.target.image.files[0])
+    }
+    dispatch(postUser(formData))
+    e.target.reset()
     setOpen(false)
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
-        <form onSubmit={addUse}>
+        <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
+            <DialogTitle>Add New Task / User</DialogTitle>
           </DialogHeader>
 
-          <FieldGroup className="py-4">
+          <FieldGroup className="py-4 space-y-3">
+            <Field>
+              <Label htmlFor="image">Image / File</Label>
+              <Input id="image" name="image" type="file" />
+            </Field>
             <Field>
               <Label htmlFor="name">Name</Label>
               <Input id="name" name="name" required />
             </Field>
-
             <Field>
-              <Label htmlFor="age">Age</Label>
-              <Input id="age" name="age" type="number" required />
+              <Label htmlFor="description">Description</Label>
+              <Input id="description" name="description" type="text" required />
             </Field>
             <Field>
               <Label htmlFor="statu">Status</Label>
               <select
                 id="statu"
                 name="statu"
-                className="w-full rounded-md border p-2"
+                className="w-full rounded-md border p-2 text-sm bg-background"
               >
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="false">Active (Incomplete)</option>
+                <option value="true">Completed</option>
               </select>
             </Field>
           </FieldGroup>
 
           <DialogFooter>
-            <DialogClose >
+            <DialogClose asChild>
               <Button type="button" variant="outline">
                 Cancel
               </Button>
@@ -72,5 +75,5 @@ export function AddModal({ open, setOpen }) {
         </form>
       </DialogContent>
     </Dialog>
-  )                                                                   
+  )
 }

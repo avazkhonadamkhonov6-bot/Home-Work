@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
@@ -12,18 +13,24 @@ import { Label } from "@/components/ui/label"
 import { useDispatch } from "react-redux"
 import { editUser } from "@/store/UsersSlice"
 
-export function EditModal({ open, setOpen,name,setName,age,setAge,status,setStatus,id }) {
-  const dispatch = useDispatch()  
-    
-  function addUse(e) {
+export function EditModal({
+  open,
+  setOpen,
+  id,
+  name,
+  setName,
+  age,
+  setAge
+}) {
+  const dispatch = useDispatch()
+
+  function handleEdit(e) {
     e.preventDefault()
-  
     dispatch(
       editUser({
         id: id,
         name: name,
-        age: age,
-        status:status
+        description: age,
       })
     )
 
@@ -33,12 +40,12 @@ export function EditModal({ open, setOpen,name,setName,age,setAge,status,setStat
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
-        <form onSubmit={addUse}>
+        <form onSubmit={handleEdit}>
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
+            <DialogTitle>Edit Profile / Task</DialogTitle>
           </DialogHeader>
 
-          <FieldGroup className="py-4">
+          <FieldGroup className="py-4 space-y-3">
             <Field>
               <Label htmlFor="name">Name</Label>
               <Input
@@ -46,39 +53,32 @@ export function EditModal({ open, setOpen,name,setName,age,setAge,status,setStat
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 name="name"
-              />
-            </Field>
-
-            <Field>
-              <Label htmlFor="age">Age</Label>
-              <Input
-                id="age"
-                value={age}
-                onChange={(e) => setAge(e.target.value)}
-                name="age"
-                type="text"
                 required
               />
             </Field>
             <Field>
-              <Label htmlFor="statu">Status</Label>
-              <select
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                id="statu"
-                name="statu"
-                className="w-full rounded-md border p-2 bg-background"
-              >
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
+              <Label htmlFor="description">Description</Label>
+              <Input
+                id="description"
+                value={age}
+                onChange={(e) => setAge(e.target.value)}
+                name="description"
+                type="text"
+                required
+              />
             </Field>
           </FieldGroup>
 
           <DialogFooter>
-              <Button type="button" variant="outline">
+            <DialogClose asChild>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
+            </DialogClose>
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </form>

@@ -1,42 +1,88 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import axios from "axios";
+
+const url ='https://to-dos-api.softclub.tj/api/to-dos'
+const urlI ='https://to-dos-api.softclub.tj/api/to-dos/images'
+
+export const getData=createAsyncThunk('users/getData',async ()=>{
+  try {
+    let {data}=await axios.get(url)
+    return data.data
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+
+export const deletUser=createAsyncThunk('users/deletUser',async(id,{dispatch})=>{
+  try {
+    await axios.delete(`${url}?id=${id}`)
+    dispatch(getData())
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+export const postUser =createAsyncThunk('users/postUser',async(newUser,{dispatch})=>{
+  try {
+    await axios.post(url,newUser)
+    dispatch(getData())
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+export const editUser =createAsyncThunk('users/editUser',async(upUser,{dispatch})=>{
+  try {
+    await axios.put(url,upUser)
+    dispatch(getData())
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+export const addImg=createAsyncThunk(`users/addImg`,async({id,formData},{dispatch})=>{
+  try {
+    await axios.post(`${url}/${id}/images`,formData)
+    dispatch(getData())
+  } catch (error) {
+    console.error(error);
+  }
+})
+
+export const deletImg=createAsyncThunk(`users,/deletImg`,async (id,{dispatch})=>{
+  try {
+    await axios.delete(`${urlI}/${id}`)
+    dispatch(getData())
+  } catch (error) {
+    console.error(error);
+  }
+})
 
 export const usersSlice = createSlice({
   name: "users",
   initialState: {
-    data: [
-      { id: 1, name: "Ibrohim", age: 12,status:false},
-      { id: 2, name: "muhammad", age: 13,status:true},
-      { id: 3, name: "soleh", age: 14,status:false},
-      { id: 4, name: "maga", age: 15,status:true},
-      { id: 5, name: "sadi", age: 16,status:false},
-      { id: 6, name: "ahmad", age: 25,status:true},
-      { id: 7, name: "hasan", age: 17,status:false},
-      { id: 8, name: "abubakr", age: 22,status:true},
-      { id: 9, name: "abdullo", age: 32,status:false},
-      { id: 10, name: "sunnatullo", age: 18,status:true},
-      { id: 11, name: "Murod", age: 20,status:false},
-      { id: 12, name: "Alli", age: 10,status:true},
-    ],
+    data: [],
+    isLoadind :false
   },
   reducers: {
-    deleteUser: (state, {payload}) => {
-      state.data = state.data.filter((e) => e.id !== payload);
-    },
-    addUser: (state, {payload}) => {
-      state.data.push(payload);
-    },
-    editUser: (state, {payload}) => {
-      state.data = state.data.map((user) =>
-        user.id === payload.id ? {...user,  ...payload } : user
-      );
-    },
   },
+  extraReducers:(builder)=>{
+    builder.addCase(getData.pending,(state,action)=>{
+      state.isLoadind=true
+    })
+    .addCase(getData.fulfilled,(state,action)=>{
+      state.isLoadind =false
+      state.data =action.payload
+    })
+    .addCase(getData.rejected,(state,action)=>{
+      state.isLoadind = false
+    })
+}
+
+
 });
 
 
-// deleetUser:(state,{payload})=>{
-//   state.data=state.data.filter((e)=>e.id!==payload);
-// }
-
-export const {deleteUser,editUser,addUser} = usersSlice.actions;
+export const {} = usersSlice.actions;
 export default usersSlice.reducer;
