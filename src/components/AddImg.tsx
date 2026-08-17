@@ -18,16 +18,11 @@ export default function AddImg({ open, setOpen, idI }) {
 
     const formData = new FormData()
     
-    // Агар якчанд файл ё як файл бошад ба FormData илова мекунем:
     for (let i = 0; i < fileInput.files.length; i++) {
       formData.append("images", fileInput.files[i])
     }
 
-    // Фиристодани маълумот ба Redux Action
-    // Эзоҳ: Агар addImg({ id: idI, formData }) гирад, ба ҳамин тарз фиристед
     dispatch(addImg({ id: idI, formData }))
-
-    // Бастани модал ва тоза кардани форма
     e.target.reset()
     setOpen(false)
   }

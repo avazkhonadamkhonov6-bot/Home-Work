@@ -35,8 +35,6 @@ export default function App() {
   return (
     <div className="min-h-screen bg-slate-100 py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto space-y-8">
-        
-        {/* Қисми болоӣ (Header & Actions) */}
         <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row justify-between items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">Рӯйхати Вазифаҳо ва Корбарон</h1>
@@ -59,7 +57,6 @@ export default function App() {
                 className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-md transition-all flex flex-col justify-between group"
               >
                 <div>
-                  {/* Чопи расмҳо бо тугмаи несткунӣ */}
                   {e.images && e.images.length > 0 && (
                     <div className="grid grid-cols-1 gap-3 mb-4">
                       {e.images.map((img) => (
@@ -67,7 +64,7 @@ export default function App() {
                           <img 
                             src={`https://to-dos-api.softclub.tj/images/${img.imageName}`} 
                             alt={e.name}
-                            className="w-full h-48 object-cover rounded-xl" 
+                            className="w-full h-62 object-cover rounded-xl" 
                           />
                           <button
                             type="button"
@@ -99,8 +96,6 @@ export default function App() {
                     {e.description || "Тавсиф мавҷуд нест."}
                   </p>
                 </div>
-
-                {/* Тугмаҳои амалиёт (Buttons) */}
                 <div className="flex items-center gap-2 pt-4 border-t border-slate-100">
                   <Button 
                     variant="outline"
@@ -135,8 +130,6 @@ export default function App() {
             <p className="text-slate-500 font-medium">Ҳеҷ маълумоте ёфт нашуд.</p>
           </div>
         )}
-
-        {/* Модалҳо */}
         <AddModal open={open} setOpen={setOpen} />
         <AddImg open={openI} setOpen={setOpenI} idI={idI} />
         <EditModal 
@@ -144,10 +137,8 @@ export default function App() {
           setOpen={setOpenE} 
           name={name} 
           setName={setName} 
-          desc={desc} 
-          setDesc={setDesc}
-          status={status}
-          setStatus={setStatus}
+          age={desc} 
+          setAge={setDesc}
           id={idx}  
         />
       </div>

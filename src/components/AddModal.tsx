@@ -21,9 +21,12 @@ export function AddModal({ open, setOpen }) {
     const formData = new FormData()
     formData.append("name", e.target.name.value)
     formData.append("description", e.target.description.value)
-    formData.append("isCompleted", e.target.statu.value === "true")
-    if (e.target.image.files[0]) {
-      formData.append("images", e.target.image.files[0])
+    const files = e.target.image.files
+    console.log(files);
+    
+
+    for (const file of files) {
+      formData.append(`Images`,file)
     }
     dispatch(postUser(formData))
     e.target.reset()
@@ -33,7 +36,7 @@ export function AddModal({ open, setOpen }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={(e)=>handleSubmit(e)}>
           <DialogHeader>
             <DialogTitle>Add New Task / User</DialogTitle>
           </DialogHeader>
@@ -41,7 +44,7 @@ export function AddModal({ open, setOpen }) {
           <FieldGroup className="py-4 space-y-3">
             <Field>
               <Label htmlFor="image">Image / File</Label>
-              <Input id="image" name="image" type="file" />
+              <Input id="image" multiple name="image" type="file" />
             </Field>
             <Field>
               <Label htmlFor="name">Name</Label>
@@ -51,17 +54,7 @@ export function AddModal({ open, setOpen }) {
               <Label htmlFor="description">Description</Label>
               <Input id="description" name="description" type="text" required />
             </Field>
-            <Field>
-              <Label htmlFor="statu">Status</Label>
-              <select
-                id="statu"
-                name="statu"
-                className="w-full rounded-md border p-2 text-sm bg-background"
-              >
-                <option value="false">Active (Incomplete)</option>
-                <option value="true">Completed</option>
-              </select>
-            </Field>
+          
           </FieldGroup>
 
           <DialogFooter>
