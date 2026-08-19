@@ -10,11 +10,11 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { postUser } from "@/store/UsersSlice"
-import { useDispatch } from "react-redux"
+import { useAtom } from "jotai"
+import { addUserAtom } from "./data.atom"
 
 export function AddModal({ open, setOpen }) {
-  const dispatch = useDispatch()
+const [,addUser]=useAtom(addUserAtom)
 
   function handleSubmit(e) {
     e.preventDefault()
@@ -28,7 +28,7 @@ export function AddModal({ open, setOpen }) {
     for (const file of files) {
       formData.append(`Images`,file)
     }
-    dispatch(postUser(formData))
+   addUser(formData)
     e.target.reset()
     setOpen(false)
   }

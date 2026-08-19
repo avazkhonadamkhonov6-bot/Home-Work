@@ -1,27 +1,61 @@
-import {  atom} from "jotai";
+import axios from "axios";
+import {atom} from "jotai";
+import { atomWithRefresh, loadable } from "jotai/utils";
 
-export const dataAtom=atom([
-    {id:1,name:'ahmad',status:false,age:23},
-    {id:2,name:'muhammad',status:true,age:17},
-    {id:3,name:'bilol',status:true,age:19},
-    {id:4,name:'nekruz',status:false,age:21},
-    {id:5,name:'ali',status:true,age:14},
-    {id:6,name:'ibrohim',status:false,age:16},
-    {id:7,name:'solex',status:false,age:21},
-    {id:8,name:'maga',status:true,age:13},
-    {id:9,name:'adburahmon',status:false,age:15},
-    {id:10,name:'zafar',status:true,age:24},
-])
+const url='https://to-dos-api.softclub.tj/api/to-dos'
 
-export const deleteAtom= atom(null,(get,set,id)=>{
-    set(dataAtom,get(dataAtom).filter((e)=>e.id!==id))
+export const dataAtom=atomWithRefresh(async()=>{
+    try {
+        let {data}= await axios.get(url)
+        return data.data
+    } catch (error) {
+        console.error(error);
+    }
 })
 
+export const loadableDataAtom=loadable(dataAtom)
 
-export const editAtom= atom(null,(get,set,upUser)=>{
-    set(dataAtom,get(dataAtom).map((e)=>e.id===upUser.id?{...e,...upUser}:e))
+export const deleteAtom=atom(null,async(get,set,id)=>{
+    try {
+        await axios.delete(`${url}?id=${id}`)
+        set(dataAtom)
+    } catch (error) {
+        console.error(error);
+    }
 })
 
-export const addUAtom=atom(null,(get,set,newUser)=>{
-    set(dataAtom,[...get(dataAtom),newUser])
+export const addUserAtom=atom(null,async(get,set,newUser)=>{
+    try {
+        await axios.post(url,newUser)
+        set(dataAtom)
+    } catch (error) {
+        console.error(error);
+    }
+})
+
+export const editUserAtom=atom(null,async(get,set,upUser)=>{
+    try {
+        await axios.put(url,upUser)
+        set(dataAtom)
+    } catch (error) {
+        console.error(error);
+    }
+})
+
+export const deleteImgAtom=atom(null,async(get,set,id)=>{
+    try {
+        await axios.delete(`${url}/images/${id}`)
+        set(dataAtom)
+    } catch (error) {
+        console.error(error);
+    }
+})
+
+export const addImg=atom(null,async(get,set,{id,formData})=>{
+    try {
+        await axios.post(`${url}/${id}/images`,formData)
+        set(dataAtom)
+    } catch (error) {
+        console.error(error);
+    }
 })

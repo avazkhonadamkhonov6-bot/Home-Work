@@ -4,12 +4,11 @@ import { Field, FieldGroup } from './ui/field'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Button } from './ui/button'
-import { useDispatch } from 'react-redux'
-import { addImg } from '@/store/UsersSlice'
+import { useAtom } from 'jotai'
+import { addImg } from './data.atom'
 
 export default function AddImg({ open, setOpen, idI }) {
-  const dispatch = useDispatch()
-
+  const [,addIm]=useAtom(addImg)
   function handleSubmit(e) {
     e.preventDefault()
     
@@ -22,7 +21,7 @@ export default function AddImg({ open, setOpen, idI }) {
       formData.append("images", fileInput.files[i])
     }
 
-    dispatch(addImg({ id: idI, formData }))
+    addIm({ id: idI, formData })
     e.target.reset()
     setOpen(false)
   }

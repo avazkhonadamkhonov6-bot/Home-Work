@@ -1,120 +1,107 @@
+import { useAtom } from 'jotai'
 import React, { useState } from 'react'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { dataAtom, deleteAtom } from './components/data.atom'
+import { deleteAtom, deleteImgAtom, loadableDataAtom } from './components/data.atom'
 import { Button } from './components/ui/button'
-import { AddAtom } from './components/AddAtom'
-import { EditAtom } from './components/EditAtom'
-import { Plus, Trash2, Edit3, User, CheckCircle2, XCircle } from 'lucide-react'
+import { AddModal } from './components/AddModal'
+import { EditModal } from './components/EditModal'
+import { Trash2, Plus, Edit3, ImagePlus, UserX, Loader2 } from 'lucide-react'
+import AddImg from './components/AddImg'
 
 export default function App() {
-  const data = useAtomValue(dataAtom)
-  const deletU = useSetAtom(deleteAtom)
-
+  const [dataA] = useAtom(loadableDataAtom)
+  const [, deletUser] = useAtom(deleteAtom)
+  const [, deletImg] = useAtom(deleteImgAtom)
   const [open, setOpen] = useState(false)
   const [openE, setOpenE] = useState(false)
   const [name, setName] = useState('')
-  const [age, setAge] = useState('')
-  const [status, setStatus] = useState(false)
+  const [desc, setDesc] = useState('')
   const [id, setId] = useState(null)
+  const [idI, setIdI] = useState(null)
+  const [openI, setOpenI] = useState(false)
 
-  const handelEdit = (user) => {
+  const handelEdit = (e) => {
     setOpenE(true)
-    setName(user.name)
-    setAge(user.age)
-    setId(user.id)
-    setStatus(user.status)
+    setName(e.name)
+    setDesc(e.description)
+    setId(e.id)
   }
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 p-6 md:p-10 font-sans">
-      <AddAtom open={open} setOpen={setOpen} />
-      <div className="max-w-5xl mx-auto space-y-6">
-        <div className="flex items-center justify-between bg-white dark:bg-slate-900 p-6 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+  if (dataA.state === 'loading') {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+        <div className="flex items-center gap-3 text-lg font-medium text-gray-600">
+          <Loader2 className="h-6 w-6 animate-spin text-indigo-600" />
+          <span>Loading content...</span>
+        </div>
+      </div>
+    )
+  }  return (
+    <div className="min-h-screen bg-slate-50 p-6 md:p-10 font-sans text-slate-800">
+      <EditModal open={openE} setOpen={setOpenE} name={name} setName={setName} age={desc} setAge={setDesc} id={id} />
+      <AddModal open={open} setOpen={setOpen} />
+      <AddImg open={openI} setOpen={setOpenI} idI={idI} />
+      <div className="mx-auto max-w-6xl space-y-8">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-5">
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100">
-              Рӯйхати корбарон
-            </h1>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
-              Ҷамъи корбарон: {data?.length || 0}
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight text-slate-900">User Dashboard</h1>
+            <p className="text-sm text-slate-500 mt-1">Manage users, descriptions, and media galleries.</p>
           </div>
-          <Button onClick={() => setOpen(true)} className="gap-2 rounded-xl">
-            <Plus className="w-4 h-4" /> Илова кардани корбар
+          <Button onClick={() => setOpen(true)} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm">
+            <Plus className="h-4 w-4" /> Add User
           </Button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {data?.map((e) => (
-            <div
-              key={e.id}
-              className="group relative bg-white dark:bg-slate-900 p-5 rounded-2xl shadow-sm hover:shadow-md border border-slate-200 dark:border-slate-800 transition-all duration-200 flex flex-col justify-between"
-            >
-              <div className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 font-semibold">
-                      {e.name ? e.name.charAt(0).toUpperCase() : <User className="w-5 h-5" />}
-                    </div>
-                    <div>
-                      <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100 capitalize">
-                        {e.name}
-                      </h2>
-                      <span className="text-xs text-slate-500 dark:text-slate-400">
-                        {e.age} сола
-                      </span>
-                    </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {dataA?.data?.map((e) => (
+            <div key={e.id} className="flex flex-col justify-between rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md">
+              <div className="space-y-4">
+                {e.images && e.images.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1 rounded-lg bg-slate-50 p-2 border border-slate-100">
+                    {e.images.map((img) => (
+                      <div key={img.id} className="group relative aspect-video overflow-hidden rounded-md border border-slate-200 bg-slate-200">
+                        <img 
+                          src={`https://to-dos-api.softclub.tj/images/${img.imageName}`} 
+                          alt="" 
+                          className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                        />
+                        <button 
+                          onClick={() => deletImg(img.id)}
+                          className="absolute top-1 right-1 rounded-md bg-white/80 p-1 text-red-600 backdrop-blur-sm opacity-0 transition-opacity group-hover:opacity-100 hover:bg-red-50 hover:text-red-700"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <span
-                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
-                      e.status
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800'
-                        : 'bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800'
-                    }`}
-                  >
-                    {e.status ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Фаъол
-                      </>
-                    ) : (
-                      <>
-                        <XCircle className="w-3.5 h-3.5" /> Ғайрифаъол
-                      </>
-                    )}
-                  </span>
+                )}
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <h2 className="text-lg font-semibold text-slate-900 truncate">{e.name}</h2>
+                    <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                      e.isCompleted ? 'bg-emerald-50 text-emerald-700 ring-1 ring-inset ring-emerald-600/20' : 'bg-amber-50 text-amber-700 ring-1 ring-inset ring-amber-600/20'
+                    }`}>
+                      {e.isCompleted ? "Active" : 'Inactive'}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-slate-600 line-clamp-3">{e.description}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 pt-4 mt-4 border-t border-slate-100 dark:border-slate-800">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handelEdit(e)}
-                  className="flex-1 gap-1.5 rounded-xl border-slate-200 dark:border-slate-800 hover:bg-slate-100 dark:hover:bg-slate-800"
-                >
-                  <Edit3 className="w-3.5 h-3.5" /> Таҳрир
-                </Button>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => deletU(e.id)}
-                  className="rounded-xl px-3"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
+              <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 gap-2">
+                <div className="flex gap-1">
+                  <Button variant="outline" size="sm" onClick={() => handelEdit(e)} className="h-8 border-slate-200 text-slate-700 hover:bg-slate-100">
+                    <Edit3 className="h-3.5 w-3.5 mr-1" /> Edit
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => { setOpenI(true); setIdI(e.id); }} className="h-8 border-slate-200 text-indigo-600 hover:bg-indigo-50">
+                    <ImagePlus className="h-3.5 w-3.5 mr-1" /> Add Img
+                  </Button>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => deletUser(e.id)} className="h-8 text-red-600 hover:bg-red-50 hover:text-red-700">
+                  <UserX className="h-4 w-4" />
                 </Button>
               </div>
             </div>
           ))}
         </div>
       </div>
-      <EditAtom
-        name={name}
-        setName={setName}
-        age={age}
-        setAge={setAge}
-        status={status}
-        setStatus={setStatus}
-        id={id}
-        open={openE}
-        setOpen={setOpenE}
-      />
     </div>
   )
 }

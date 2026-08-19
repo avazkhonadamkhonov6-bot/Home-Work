@@ -10,8 +10,8 @@ import {
 import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { useDispatch } from "react-redux"
-import { editUser } from "@/store/UsersSlice"
+import { useAtom } from "jotai"
+import { editUserAtom } from "./data.atom"
 
 export function EditModal({
   open,
@@ -22,16 +22,15 @@ export function EditModal({
   age,
   setAge
 }) {
-  const dispatch = useDispatch()
+  const [,editUser]=useAtom(editUserAtom)
 
   function handleEdit(e) {
     e.preventDefault()
-    dispatch(
       editUser({
         id: id,
         name: name,
         description: age,
-      })
+      }
     )
 
     setOpen(false)
