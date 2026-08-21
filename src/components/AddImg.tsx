@@ -1,53 +1,74 @@
-import React from 'react'
-import { Dialog, DialogClose, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog'
-import { Field, FieldGroup } from './ui/field'
-import { Label } from './ui/label'
-import { Input } from './ui/input'
-import { Button } from './ui/button'
-import { useAtom } from 'jotai'
-import { addImg } from './data.atom'
+import { Button } from "./ui/button"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog"
+import { Field, FieldGroup } from "./ui/field"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { useSetAtom } from "jotai"
+import { addImg } from "./data.atom"
+import { useFormik } from "formik"
 
-export default function AddImg({ open, setOpen, idI }) {
-  const [,addIm]=useAtom(addImg)
-  function handleSubmit(e) {
-    e.preventDefault()
-    
-    const fileInput = e.target.image
-    if (!fileInput.files || fileInput.files.length === 0) return
+export function AddImgAtom({ open, setOpen, id }) {
+  const addImgU = useSetAtom(addImg)
 
-    const formData = new FormData()
-    
-    for (let i = 0; i < fileInput.files.length; i++) {
-      formData.append("images", fileInput.files[i])
-    }
+  const { handleSubmit, setFieldValue, resetForm, values } = useFormik({
+    initialValues: {
+      img: [],
+    },
+    onSubmit: async (values) => {
+      if (!values.img.length) return
 
-    addIm({ id: idI, formData })
-    e.target.reset()
-    setOpen(false)
-  }
+      const formData = new FormData()
+      for (const file of values.img) {
+        formData.append('images', file)
+      }
+
+      await addImgU({ id, formData })
+      resetForm()
+      setOpen(false)
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Илова кардани расм</DialogTitle>
+            <DialogTitle>Add Images</DialogTitle>
           </DialogHeader>
 
-          <FieldGroup className="py-4 space-y-3">
+          <FieldGroup className="py-4">
             <Field>
-              <Label htmlFor="image">Расм / Файл</Label>
-              <Input id="image" name="image" type="file" multiple accept="image/*" />
+              <Label htmlFor="img">Images</Label>
+              <Input
+                id="img"
+                name="img"
+                type="file"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  const files = e.currentTarget.files
+                  setFieldValue('img', files ? Array.from(files) : [])
+                }}
+              />
             </Field>
           </FieldGroup>
 
-          <DialogFooter className="gap-2">
+          <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
-                Бекор кардан
+              <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+                Cancel
               </Button>
             </DialogClose>
-            <Button type="submit">Зоҳир кардан</Button>
+            <Button type="submit" disabled={!values.img.length}>
+              Save changes
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

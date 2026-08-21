@@ -11,52 +11,69 @@ import { Field, FieldGroup } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useAtom } from "jotai"
-import {  editAtom } from "./data.atom"
+import {   editUserAtom } from "./data.atom"
+import { useFormik } from "formik";
 
-export function EditAtom({ open, setOpen,name,setName,age,setAge,status,setStatus,id }) {
-    const [,editU]=useAtom(editAtom)
+export function EditAtom({ open, setOpen,user}) {
+    const [,editU]=useAtom(editUserAtom)
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    const upUser={
-        id:id,
-        name:name,
-        status:status,
-        age:age
-    }
-    editU(upUser)
-    e.target.reset()
-    setOpen(false)
-  }
+ const { values, handleSubmit, handleChange, resetForm } = useFormik({
+    initialValues: {
+      name: user?.name,
+      desc: user?.description,
+    },
+    enableReinitialize: true,
+    onSubmit: (values) => {
+        editU({
+          id: user?.id,
+          name: values.name,
+          description: values.desc,
+        })
+      
+      resetForm()
+      setOpen(false) 
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
-        <form onSubmit={(e)=>handleSubmit(e)}>
+        <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Edit  User</DialogTitle>
+            <DialogTitle>Edit Profile / Task</DialogTitle>
           </DialogHeader>
 
           <FieldGroup className="py-4 space-y-3">
             <Field>
               <Label htmlFor="name">Name</Label>
-              <Input value={name} onChange={(e)=> setName(e.target.value)} id="name" name="name" required />
+              <Input
+                id="name"
+                value={values.name}
+                onChange={handleChange}
+                name="name"
+                required
+              />
             </Field>
             <Field>
-              <Label htmlFor="age">Age</Label>
-              <Input value={age} onChange={(e)=>setAge(e.target.value)} id="age" name="age" type="text" required />
+              <Label htmlFor="desc">Description</Label>
+              <Input
+                id="desc"
+                value={values.desc}
+                onChange={handleChange}
+                name="desc"
+                type="text"
+                required
+              />
             </Field>
-              <Field>
-                <select value={status} name="status" onChange={(e)=>setStatus(e.target.value)}>
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                </select>
-              </Field>
           </FieldGroup>
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setOpen(false)}
+              >
                 Cancel
               </Button>
             </DialogClose>

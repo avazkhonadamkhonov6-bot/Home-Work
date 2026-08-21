@@ -1,65 +1,88 @@
-import { Button } from "@/components/ui/button"
+import { useDispatch } from "react-redux"
+import { Button } from "./ui/button"
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { Field, FieldGroup } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+} from "./ui/dialog"
+import { Field, FieldGroup } from "./ui/field"
+import { Input } from "./ui/input"
+import { Label } from "./ui/label"
+import { useFormik } from "formik"
 import { useAtom } from "jotai"
-import { addUAtom } from "./data.atom"
+import { addUserAtom } from "./data.atom"
 
 export function AddAtom({ open, setOpen }) {
-    const [,AddU]=useAtom(addUAtom)
+  const [,addUser] = useAtom(addUserAtom)
 
-  function handleSubmit(e) {
-    e.preventDefault()
-    const newUser={
-        id:Date.now(),
-        name:e.target.name.value,
-        status:e.target.status.value,
-        age:e.target.age.value
-    }
-    AddU(newUser)
-    e.target.reset()
-    setOpen(false)
-  }
+  const { values, handleSubmit, handleChange, setFieldValue, resetForm } = useFormik({
+    initialValues: {
+      name: '',
+      desc: '',
+      img: [],
+    },
+    onSubmit: (values) => {
+      const formData = new FormData()
+      formData.append('name', values.name)
+      formData.append('description', values.desc)
+      for (const file of values.img) {
+        formData.append('images', file)
+      }
+
+      addUser(formData)
+      resetForm()
+      setOpen(false) 
+    },
+  })
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-sm">
-        <form onSubmit={(e)=>handleSubmit(e)}>
+        <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Add New Task / User</DialogTitle>
+            <DialogTitle>Add User</DialogTitle>
           </DialogHeader>
-
-          <FieldGroup className="py-4 space-y-3">
+          <FieldGroup className="py-4">
+            <Field>
+              <Label htmlFor="img">Images</Label>
+              <Input
+                id="img"
+                name="img"
+                type="file"
+                multiple
+                onChange={(e) => {
+                  setFieldValue('img', [...e.currentTarget.files])
+                }}
+              />
+            </Field>
             <Field>
               <Label htmlFor="name">Name</Label>
-              <Input id="name" name="name" required />
+              <Input
+                id="name"
+                name="name"
+                value={values.name}
+                onChange={handleChange}
+                placeholder="Pedro Duarte"
+              />
             </Field>
             <Field>
-              <Label htmlFor="age">Age</Label>
-              <Input id="age" name="age" type="text" required />
+              <Label htmlFor="desc">Description</Label>
+              <Input
+                id="desc"
+                name="desc"
+                value={values.desc}
+                onChange={handleChange}
+                placeholder="Developer"
+              />
             </Field>
-              <Field>
-                <select name="status">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                </select>
-              </Field>
           </FieldGroup>
 
           <DialogFooter>
-            <DialogClose asChild>
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
-            </DialogClose>
+            <Button type="button" onClick={() => setOpen(false)} variant="outline">
+              Cancel
+            </Button>
             <Button type="submit">Save changes</Button>
           </DialogFooter>
         </form>
